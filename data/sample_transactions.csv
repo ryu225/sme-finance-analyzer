@@ -1,0 +1,16 @@
+date,type,category,description,amount,tax
+2025-01-03,sale,online order,Order #1001,950,45
+2025-01-05,expense,software,SaaS subscription,-120,0
+2025-01-08,expense,marketing,Instagram ads,-300,0
+2025-01-12,sale,retail store,POS ticket #1102,1250,62.5
+2025-01-15,expense,logistics,Delivery charges,-180,0
+2025-02-02,sale,online order,Order #1201,1400,70
+2025-02-06,expense,software,SaaS subscription,-120,0
+2025-02-10,expense,marketing,Google ads,-450,0
+2025-02-18,sale,retail store,POS ticket #1320,1700,85
+2025-02-22,expense,logistics,Delivery charges,-210,0
+2025-03-03,sale,online order,Order #1305,1600,80
+2025-03-07,expense,software,SaaS subscription,-120,0
+2025-03-14,expense,marketing,TikTok ads,-350,0
+2025-03-20,sale,retail store,POS ticket #1402,1900,95
+2025-03-27,expense,logistics,Delivery charges,-220,0
