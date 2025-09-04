@@ -1,0 +1,5 @@
+date,type,category,description,amount,tax,currency
+2025-01-03,sale,online order,Order #1001,950,45,SAR
+2025-01-05,expense,software,SaaS subscription,-120,0,SAR
+2025-01-08,expense,marketing,Instagram ads,-300,0,SAR
+2025-01-12,sale,retail store,POS ticket #1102,1250,62.5,SAR
