@@ -1,7 +1,6 @@
 import os
 from io import BytesIO
 from datetime import datetime
-
 import numpy as np
 import pandas as pd
 import streamlit as st
@@ -9,6 +8,19 @@ import plotly.express as px
 from pptx import Presentation
 from pptx.util import Inches
 from plotly import colors as pcolors
+
+
+def to_excel(pnl_df: pd.DataFrame, clean_df: pd.DataFrame, anom_df: pd.DataFrame) -> bytes:
+    out = BytesIO()
+    with pd.ExcelWriter(out, engine="xlsxwriter") as xw:
+        pnl_df.to_excel(xw, sheet_name="P&L", index=False)
+        clean_df.to_excel(xw, sheet_name="Transactions", index=False)
+        if not anom_df.empty:
+            anom_df.to_excel(xw, sheet_name="Anomalies", index=False)
+        for ws in xw.sheets.values():
+            ws.set_column("A:Z", 16)
+    out.seek(0)
+    return out.getvalue()
 
 
 #page setup
@@ -287,6 +299,25 @@ st.plotly_chart(fig_profit, use_container_width=True)
 if "revenue_target" in pnl.columns:
     st.info("Budget loaded: showing variance columns in the P&L table below.")
 
+# Budget vs Actual (Revenue)
+st.subheader("Budget vs Actual")
+if "revenue_target" in pnl.columns:
+    df_rev_vs_target = pnl.melt(
+        id_vars="month",
+        value_vars=["revenue", "revenue_target"],
+        var_name="metric",
+        value_name="value",
+    )
+    fig_bud = px.bar(
+        df_rev_vs_target,
+        x="month", y="value",
+        color="metric", barmode="group",
+        title="Revenue: Actual vs Target"
+    )
+    st.plotly_chart(fig_bud, use_container_width=True)
+else:
+    st.caption("Upload data/budget.csv to enable budget variance and this chart.")
+
 #tables
 with st.expander("P&L Table"):
     st.dataframe(pnl)
@@ -301,12 +332,16 @@ else:
 # Anomalies
 st.subheader("Anomaly Detection (Expenses)")
 anom = anomalies(df, z_thresh=z_thresh)
+#Banner
+if not anom.empty:
+    total_impact = -anom["net_amount"].sum()
+    st.warning(f"⚠️ {len(anom)} unusual expenses detected. Estimated impact: {total_impact:,.0f} {base_currency}")
+#Table render
 if not anom.empty:
     st.dataframe(anom[["date","category","description","net_amount","currency","z_score"]].sort_values("z_score"))
     st.caption("Rows flagged as unusually large expenses relative to the dataset mean/std.")
 else:
     st.caption("No anomalies detected with current threshold.")
-
 
 #  Export 
 st.subheader("Export")
@@ -339,6 +374,14 @@ with col_c:
         data=pnl.to_csv(index=False).encode("utf-8"),
         file_name=f"pnl_{datetime.now():%Y%m%d}.csv",
         mime="text/csv",
+    )
+with st.expander("More exports"):
+    xls_bytes = to_excel(pnl, df, anom)
+    st.download_button(
+        "Download Excel (formatted)",
+        data=xls_bytes,
+        file_name=f"SME_Finance_{datetime.now():%Y%m%d}.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     )
 
 #  Raw table 

@@ -5,3 +5,4 @@ plotly
 python-pptx
 kaleido
 openpyxl
+xlsxwriter
